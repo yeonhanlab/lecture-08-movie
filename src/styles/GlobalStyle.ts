@@ -1,0 +1,18 @@
+import { createGlobalStyle } from "styled-components";
+
+const GlobalStyle = createGlobalStyle`
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+
+    a {
+        text-decoration: none;
+        color: inherit;          /* inherit : 부모 요소의 색상을 따르겠음 */
+    }
+
+`;
+
+export default GlobalStyle;
