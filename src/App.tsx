@@ -5,7 +5,7 @@ import Detail from "./routes/Detail.tsx";
 import GlobalStyle from "./styles/GlobalStyle.ts";
 
 function App() {
-    return(
+    return (
         <>
             <GlobalStyle />
             <BrowserRouter>
@@ -13,9 +13,7 @@ function App() {
                     <Route path={"/"} element={<Home />} />
                     <Route path={"/search"} element={<Search />} />
                     <Route path={"/detail/:id"} element={<Detail />} />
-
                 </Routes>
-
             </BrowserRouter>
         </>
     );

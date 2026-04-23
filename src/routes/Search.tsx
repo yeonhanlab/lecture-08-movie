@@ -1,53 +1,15 @@
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import SearchBar from "../components/SearchBar.tsx";
+import MovieCard from "../components/MovieCard.tsx";
 
-type MovieItem = {
+export type MovieItem = {
     imdbID: string;
     Poster: string;
     Title: string;
     Year: string;
 };
-
-type ApiResponseType = { Search: MovieItem[] };
-
-const Wrap = styled.div`
-    padding: 0 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    width: 100%;
-    align-items: flex-start;
-    box-sizing: border-box;
-    
-`;
-
-const StyleLink = styled(Link)`
-    padding: 15px 0;
-    display: flex;
-    flex-direction: column;
-    width: calc((100% - 45px)/4);
-    align-items: center;
-`;
-
-const Title = styled.div`
-    font-weight: 600;
-    font-size: 18px;
-    margin-top: 10px;
-`;
-
-const Year = styled.div`
-    color: #8b8b8b;
-    font-size: 15px;
-    font-weight: 400;
-`;
-
-const Cover = styled.img`
-    border-radius: 20px;
-    object-fit: cover;
-    width: 100%;
-    height: auto;
-`;
 
 const Result = styled.h3`
     font-size: 19px;
@@ -57,42 +19,65 @@ const Result = styled.h3`
     
 `;
 
+type ApiResponseType = { Search: MovieItem[] };
+
+const List = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 100px;
+`;
+
+const Box = styled.div`
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+`;
+
 
 
 function Search() {
-    const [searchParams] = useSearchParams();
-    const keyword = searchParams.get("keyword");
+    const [list, setList] = useState<MovieItem[]>([]); // 데이터가 저장되므로 타입을 명시해줘야함.
+    const [loading, setLoading] = useState(true); // loading에 대한 상태값 관리
+    const [error, setError] = useState(""); // 에러가 났을 때 화면에 출력해야 하는 string
 
-    const [list, setList] = useState<MovieItem[]>([]);
+    const [searchParams] = useSearchParams();
+    const k = searchParams.get("keyword");
 
     useEffect(() => {
-        if (!keyword) {
-            return;
-        }
+        if (!k) return;
 
-        fetch(`https://www.omdbapi.com/?apikey=6a0a8eb4&s=${keyword}`)
+        setLoading(true);
+        setList([]);
+        setError("");
+
+        fetch(`https://www.omdbapi.com/?apikey=6a0a8eb4&s=${k}`)
             .then(res => res.json())
             .then((json: ApiResponseType) => {
                 setList(json.Search);
+                setLoading(false);
             })
             .catch(err => {
                 console.log(err);
+                setError("검색하는데 오류가 발생하였습니다.");
+                setLoading(false);
             });
-    }, [keyword]);
+    }, [k]);
 
     return (
-        <div>
-            <Result>검색 결과 : {keyword}</Result>
-            <Wrap>
+        <Box>
+            <Result>검색 결과 : {k}</Result>
+
+            {loading && <p>Loading...</p>}
+            {error && <p>{error}</p>}
+
+            <SearchBar />
+            <List>
                 {list.map((value, index) => (
-                    <StyleLink key={index} to={`/detail/${value.imdbID}`}>
-                        <Cover src={value.Poster} alt={value.Title} />
-                        <Title>{value.Title}</Title>
-                        <Year>{value.Year}</Year>
-                    </StyleLink>
+                    <MovieCard movie={value} key={index} />
                 ))}
-            </Wrap>
-        </div>
+            </List>
+        </Box>
     );
 }
 

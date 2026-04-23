@@ -7,7 +7,7 @@ const Wrap = styled.div`
 
 function Home() {
     return <Wrap>
-        <h2>Movie 검색</h2>
+        <h2>Movie Search</h2>
         <SearchBar />
     </Wrap>;
 }

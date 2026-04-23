@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
+import styled from "styled-components";
 
 type MovieDetail = {
     Title: string;
@@ -10,62 +11,72 @@ type MovieDetail = {
     Director: string;
 };
 
+const Wrap = styled.div`
+    padding: 40px;
+
+    img {
+        width: 240px;
+        border-radius: 12px;
+    }
+`;
+
+const BackButton = styled.button`
+    display: block;
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    color: #ff5959;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+        text-decoration: underline;
+    }
+`;
+
+const Plot = styled.p`
+    line-height: 1.6;
+    margin-top: 20px;
+`;
+
 function Detail() {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [movie, setMovie] = useState<MovieDetail | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        console.log(id);
         if (!id) return;
-
         fetch(`https://www.omdbapi.com/?apikey=6a0a8eb4&i=${id}&plot=full`)
             .then(res => res.json())
-            .then(json => {
-                console.log(json);
+            .then((json: MovieDetail) => {
                 setMovie(json);
             })
             .catch(err => {
                 console.log(err);
             });
     }, [id]);
-    useEffect(() => {
-        console.log(movie);
-    }, [movie]);
+
+    if (!movie) return <p>Loading...</p>;
+
     return (
-        <div>
-            <button
-                onClick={() => {
-                    navigate(-1);
-                }}>
-                &larr; 뒤로 가기
-            </button>
-            {movie ? (
-                <div style={{ padding: "20px" }}>
-                    {/* 영화 포스터 */}
-                    <img src={movie.Poster} alt={movie.Title} style={{ width: "300px" }} />
+        <Wrap>
+            <BackButton onClick={() => navigate(-1)}>&larr; Back</BackButton>
 
-                    {/* 영화 제목 및 정보 */}
-                    <h1>
-                        {movie.Title} ({movie.Year})
-                    </h1>
-                    <p>
-                        <strong>감독:</strong> {movie.Director}
-                    </p>
-                    <p>
-                        <strong>장르:</strong> {movie.Genre}
-                    </p>
+            <img src={movie.Poster} alt={movie.Title} />
 
-                    <hr />
-
-                    {/* 줄거리 */}
-                    <h3>줄거리</h3>
-                    <p>{movie.Plot}</p>
-                </div>
-            ) : (
-                <p>영화 정보를 불러오는 중입니다...</p>
-            )}
-        </div>
+            <h1>{movie.Title}</h1>
+            <p>
+                <strong>Year:</strong> {movie.Year}
+            </p>
+            <p>
+                <strong>Genre:</strong> {movie.Genre}
+            </p>
+            <p>
+                <strong>Director:</strong> {movie.Director}
+            </p>
+            <Plot>{movie.Plot}</Plot>
+        </Wrap>
     );
 }
 
